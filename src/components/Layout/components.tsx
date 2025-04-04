@@ -89,7 +89,7 @@ const [upcomingTasks, setUpcomingTasks] = useState<UpcomingTask[]>([]);
         title: task.title,
         category: task.category,
         priority: task.priority,
-        date: new Date(task.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        date: 'Tomorrow at ' + new Date(task.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }));
     
     setUpcomingTasks(upcoming);
@@ -137,7 +137,7 @@ const [upcomingTasks, setUpcomingTasks] = useState<UpcomingTask[]>([]);
         title: task.title,
         category: task.category,
         priority: task.priority,
-        date: new Date(task.scheduledDate).toLocaleString()
+        date: 'Tomorrow at ' + new Date(task.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }));
     
     setUpcomingTasks(upcoming);
