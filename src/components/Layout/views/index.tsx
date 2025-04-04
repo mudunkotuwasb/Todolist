@@ -39,18 +39,18 @@ export const Dashboard = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Task Dashboard</h1>
-      <div style={{ marginTop: '-5px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+      <div style={{ marginTop: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         <StatCard title="Total Tasks" value={taskStats.total} color="#2196F3" />
         <StatCard title="Pending Tasks" value={taskStats.pending} color="#FF9800" />
         <StatCard title="Completed Tasks" value={taskStats.completed} color="#4CAF50" />
         <StatCard title="High Priority" value={taskStats.highPriority} color="#F44336" />
       </div>
       
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: '30px' }}>
         <h2>Pending Tasks</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px', marginTop: '15px' }}>
           <TaskPreview title="" tasks={taskStats.pendingTasks} />
         </div>
       </div>
@@ -83,9 +83,9 @@ export const Tasks = () => {
   }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Tasks</h1>
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: '30px' }}>
         {tasks.map(task => (
           <div
             key={task.id}
@@ -152,9 +152,9 @@ export const PriorityTasks = () => {
     }));
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Priority Tasks</h1>
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: '30px' }}>
         {priorityTasks.map(task => (
           <div
             key={task.id}
@@ -177,7 +177,7 @@ export const PriorityTasks = () => {
 
 export const Calendar = () => {
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Calendar</h1>
       <p>Calendar view coming soon...</p>
     </div>
