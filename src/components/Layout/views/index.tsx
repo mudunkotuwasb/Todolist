@@ -67,65 +67,7 @@ export const Dashboard = () => {
   );
 };
 
-export const Tasks = () => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const storedTasks = localStorage.getItem('tasks');
-    return storedTasks ? JSON.parse(storedTasks).map((task: any) => ({
-      ...task,
-      scheduledDate: new Date(task.scheduledDate)
-    })) : [];
-  });
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const storedTasks = localStorage.getItem('tasks');
-      if (storedTasks) {
-        setTasks(JSON.parse(storedTasks).map((task: any) => ({
-          ...task,
-          scheduledDate: new Date(task.scheduledDate)
-        })));
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Tasks</h1>
-      <div style={{ marginTop: '30px' }}>
-        {tasks.map(task => (
-          <div
-            key={task.id}
-            style={{
-              padding: '15px',
-              marginBottom: '10px',
-              backgroundColor: '#f5f5f5',
-              borderRadius: '4px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <div>
-              <h3 style={{ margin: 0 }}>{task.title}</h3>
-              <span style={{ color: '#666' }}>{task.priority} priority</span>
-            </div>
-            <span style={{
-              padding: '5px 10px',
-              borderRadius: '15px',
-              backgroundColor: task.status === 'completed' ? '#4CAF50' : '#FF9800',
-              color: 'white'
-            }}>
-              {task.status}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 export const PriorityTasks = () => {
   const [tasks, setTasks] = useState<Task[]>(() => {

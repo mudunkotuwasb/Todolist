@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './LeftSidebar.module.css';
 
 export const LeftSidebar = ({ onSelect }: { onSelect: (item: string) => void }) => {
-  const menuItems = ['Dashboard', 'Tasks', 'Priority Tasks', 'Calendar'];
+  const menuItems = ['Dashboard', 'Completed Tasks', 'Priority Tasks', 'Calendar'];
   const [selected, setSelected] = useState('Dashboard');
 
   const handleSelect = (item: string) => {
@@ -28,19 +28,45 @@ export const LeftSidebar = ({ onSelect }: { onSelect: (item: string) => void }) 
   );
 };
 
-import { Dashboard, Tasks, PriorityTasks, Calendar } from './views';
+import { Dashboard, PriorityTasks, Calendar } from './views';
 
 export const MainContent = ({ selectedItem = 'Dashboard' }) => {
   const renderContent = () => {
     switch (selectedItem) {
       case 'Dashboard':
         return <Dashboard />;
-      case 'Tasks':
-        return <Tasks />;
       case 'Priority Tasks':
         return <PriorityTasks />;
       case 'Calendar':
         return <Calendar />;
+      case 'Completed Tasks':
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]').filter((task: { completed: boolean }) => task.completed);
+        return (
+          <div style={{ padding: '20px' }}>
+            <h2>Completed Tasks</h2>
+            {tasks.map((task: any, index: number) => (
+              <div
+                key={index}
+                style={{
+                  padding: '10px',
+                  marginBottom: '10px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  textDecoration: 'line-through',
+                  color: '#888'
+                }}
+              >
+                <div style={{ fontWeight: 'bold' }}>{task.title}</div>
+                <div style={{ fontSize: '0.9em' }}>
+                  {task.category} • {task.priority} Priority
+                </div>
+                <div style={{ fontSize: '0.9em' }}>
+                  Completed on {new Date(task.scheduledDate).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
       default:
         return <Dashboard />;
     }
