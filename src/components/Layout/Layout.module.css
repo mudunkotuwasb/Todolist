@@ -1,31 +1,39 @@
 .container {
   display: grid;
-  grid-template-columns: 250px 1fr 250px;
-  min-height: 100vh;
-  position: relative;
+  grid-template-columns: minmax(250px, 250px) minmax(0, 1fr) minmax(300px, 300px);
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f7fa;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 .leftSidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-right: 1px solid #e0e0e0;
+  background-color: #6b4fbb;
+  color: white;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  height: 100%;
+  min-width: 250px;
 }
 
 .content {
-  padding: 20px;
-  background-color: #ffffff;
-  min-height: 100vh;
   overflow-y: auto;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  min-width: 0;
 }
 
 .rightSidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
+  background-color: #ffffff;
+  overflow-y: auto;
   border-left: 1px solid #e0e0e0;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  height: 100%;
+  min-width: 300px;
 }
