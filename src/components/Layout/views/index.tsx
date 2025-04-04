@@ -29,24 +29,30 @@ export const Dashboard = () => {
 
   const taskStats = {
     total: tasks.length,
-    completed: tasks.filter(task => task.completed).length,
     pending: tasks.filter(task => !task.completed).length,
-    highPriority: tasks.filter(task => task.priority === 'High').length
+    completed: tasks.filter(task => task.completed).length,
+    highPriority: tasks.filter(task => task.priority === 'High' && !task.completed).length,
+    pendingTasks: tasks
+      .filter(task => !task.completed)
+      .sort((a, b) => a.scheduledDate.getTime() - b.scheduledDate.getTime())
+      .slice(0, 5)
   };
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Task Dashboard</h1>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '20px',
-        marginTop: '20px'
-      }}>
-        <StatCard title="Total Tasks" value={taskStats.total} color="#4CAF50" />
-        <StatCard title="Completed" value={taskStats.completed} color="#2196F3" />
-        <StatCard title="Pending" value={taskStats.pending} color="#FF9800" />
-        <StatCard title="High Priority" value={taskStats.highPriority} color="#f44336" />
+      <div style={{ marginTop: '-5px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <StatCard title="Total Tasks" value={taskStats.total} color="#2196F3" />
+        <StatCard title="Pending Tasks" value={taskStats.pending} color="#FF9800" />
+        <StatCard title="Completed Tasks" value={taskStats.completed} color="#4CAF50" />
+        <StatCard title="High Priority" value={taskStats.highPriority} color="#F44336" />
+      </div>
+      
+      <div style={{ marginTop: '20px' }}>
+        <h2>Pending Tasks</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '10px' }}>
+          <TaskPreview title="" tasks={taskStats.pendingTasks} />
+        </div>
       </div>
     </div>
   );
@@ -174,6 +180,34 @@ export const Calendar = () => {
     <div style={{ padding: '20px' }}>
       <h1>Calendar</h1>
       <p>Calendar view coming soon...</p>
+    </div>
+  );
+};
+
+const TaskPreview = ({ title, tasks }: { title: string; tasks: Task[] }) => {
+  return (
+    <div style={{
+      padding: '20px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    }}>
+      <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>{title}</h3>
+      {tasks.length > 0 ? (
+        tasks.map(task => (
+          <div key={task.id} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
+            <div style={{ fontWeight: 'bold' }}>{task.title}</div>
+            <div style={{ fontSize: '0.9em', color: '#666' }}>
+              {task.category} • {task.priority} Priority
+            </div>
+            <div style={{ fontSize: '0.9em', color: '#666' }}>
+              Due: {task.scheduledDate.toLocaleString()}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div style={{ color: '#999' }}>No tasks found</div>
+      )}
     </div>
   );
 };
