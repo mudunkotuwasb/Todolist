@@ -1,22 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface Task {
+export interface Task {
   id: number;
   title: string;
   category: string;
   priority: string;
   completed: boolean;
   scheduledDate: Date;
+  status: string;
 }
 
 export const TaskDashboard = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: 'Complete Project Proposal', category: 'Work', priority: 'High', completed: false, scheduledDate: new Date('2024-01-20T10:00:00') },
-    { id: 2, title: 'Gym Session', category: 'Health & Fitness', priority: 'Medium', completed: true, scheduledDate: new Date('2024-01-20T15:00:00') },
-    { id: 3, title: 'Budget Planning', category: 'Finance', priority: 'High', completed: false, scheduledDate: new Date('2024-01-21T09:00:00') },
-    { id: 4, title: 'Online Course', category: 'Education', priority: 'Medium', completed: false, scheduledDate: new Date('2024-01-21T14:00:00') },
-    { id: 5, title: 'House Cleaning', category: 'Household', priority: 'Low', completed: false, scheduledDate: new Date('2024-01-22T11:00:00') },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks).map((task: any) => ({
+      ...task,
+      scheduledDate: new Date(task.scheduledDate)
+    })) : [];
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedTasks = localStorage.getItem('tasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks).map((task: any) => ({
+          ...task,
+          scheduledDate: new Date(task.scheduledDate)
+        })));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -32,13 +48,17 @@ export const TaskDashboard = () => {
   }, {} as Record<string, Task[]>);
 
   const handleToggleComplete = (taskId: number) => {
-    setTasks(tasks.map(task =>
+    const updatedTasks = tasks.map(task =>
       task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
+    );
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
   const handleDelete = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
   const handleEdit = (task: Task) => {
@@ -46,9 +66,11 @@ export const TaskDashboard = () => {
   };
 
   const handleSave = (taskId: number, newTitle: string) => {
-    setTasks(tasks.map(task =>
+    const updatedTasks = tasks.map(task =>
       task.id === taskId ? { ...task, title: newTitle } : task
-    ));
+    );
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setEditingTask(null);
   };
 

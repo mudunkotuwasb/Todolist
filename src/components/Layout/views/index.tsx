@@ -1,11 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Task } from './TaskDashboard';
 
 export const Dashboard = () => {
+  type NewType = Task;
+
+  const [tasks, setTasks] = useState<NewType[]>(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks).map((task: any) => ({
+      ...task,
+      scheduledDate: new Date(task.scheduledDate)
+    })) : [];
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedTasks = localStorage.getItem('tasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks).map((task: any) => ({
+          ...task,
+          scheduledDate: new Date(task.scheduledDate)
+        })));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const taskStats = {
-    total: 10,
-    completed: 4,
-    pending: 6,
-    highPriority: 3
+    total: tasks.length,
+    completed: tasks.filter(task => task.completed).length,
+    pending: tasks.filter(task => !task.completed).length,
+    highPriority: tasks.filter(task => task.priority === 'High').length
   };
 
   return (
@@ -27,11 +53,28 @@ export const Dashboard = () => {
 };
 
 export const Tasks = () => {
-  const tasks = [
-    { id: 1, title: 'Complete Project Proposal', status: 'pending', priority: 'high' },
-    { id: 2, title: 'Review Code Changes', status: 'completed', priority: 'medium' },
-    { id: 3, title: 'Update Documentation', status: 'pending', priority: 'low' },
-  ];
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks).map((task: any) => ({
+      ...task,
+      scheduledDate: new Date(task.scheduledDate)
+    })) : [];
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedTasks = localStorage.getItem('tasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks).map((task: any) => ({
+          ...task,
+          scheduledDate: new Date(task.scheduledDate)
+        })));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <div style={{ padding: '20px' }}>
@@ -70,10 +113,37 @@ export const Tasks = () => {
 };
 
 export const PriorityTasks = () => {
-  const priorityTasks = [
-    { id: 1, title: 'Client Meeting Preparation', deadline: 'Today, 2 PM', priority: 'high' },
-    { id: 2, title: 'Project Deliverables', deadline: 'Tomorrow, 5 PM', priority: 'high' },
-  ];
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks).map((task: any) => ({
+      ...task,
+      scheduledDate: new Date(task.scheduledDate)
+    })) : [];
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedTasks = localStorage.getItem('tasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks).map((task: any) => ({
+          ...task,
+          scheduledDate: new Date(task.scheduledDate)
+        })));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const priorityTasks = tasks
+    .filter(task => task.priority === 'High' && !task.completed)
+    .map(task => ({
+      id: task.id,
+      title: task.title,
+      deadline: task.scheduledDate.toLocaleString(),
+      priority: task.priority
+    }));
 
   return (
     <div style={{ padding: '20px' }}>
