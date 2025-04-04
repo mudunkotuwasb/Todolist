@@ -31,6 +31,8 @@ export const LeftSidebar = ({ onSelect }: { onSelect: (item: string) => void }) 
 import { Dashboard, PriorityTasks, Calendar } from './views';
 
 export const MainContent = ({ selectedItem = 'Dashboard' }) => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dateTasks, setDateTasks] = useState<any[]>([]);
   const renderContent = () => {
     switch (selectedItem) {
       case 'Dashboard':
@@ -38,7 +40,57 @@ export const MainContent = ({ selectedItem = 'Dashboard' }) => {
       case 'Priority Tasks':
         return <PriorityTasks />;
       case 'Calendar':
-        return <Calendar />;
+        return (
+          <div style={{ padding: '20px' }}>
+            <h2>Calendar</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} style={{ textAlign: 'center', fontWeight: 'bold' }}>{day}</div>
+              ))}
+              {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }, (_, i) => {
+                const date = new Date(new Date().getFullYear(), new Date().getMonth(), i + 1);
+                const tasks = JSON.parse(localStorage.getItem('tasks') || '[]').filter((task: any) => {
+                  const taskDate = new Date(task.scheduledDate);
+                  return (
+                    !task.completed &&
+                    taskDate.getDate() === date.getDate() &&
+                    taskDate.getMonth() === date.getMonth() &&
+                    taskDate.getFullYear() === date.getFullYear()
+                  );
+                });
+                return (
+                  <div 
+                    key={i} 
+                    style={{
+                      minHeight: '80px',
+                      border: '1px solid #ddd',
+                      padding: '5px',
+                      backgroundColor: date.getDate() === new Date().getDate() ? '#e6f7ff' : 'white'
+                    }}
+                    onClick={() => {
+  setSelectedDate(date);
+  setDateTasks(tasks);
+}}
+                  >
+                    <div style={{ textAlign: 'right' }}>{i + 1}</div>
+                    {tasks.length > 0 && (
+                      <div style={{ 
+                        fontSize: '0.8em', 
+                        color: 'white', 
+                        backgroundColor: '#1890ff', 
+                        borderRadius: '10px', 
+                        padding: '2px 5px', 
+                        marginTop: '5px'
+                      }}>
+                        {tasks.length} task{tasks.length > 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
       case 'Completed Tasks':
         const tasks = JSON.parse(localStorage.getItem('tasks') || '[]').filter((task: { completed: boolean }) => task.completed);
         return (
@@ -75,6 +127,53 @@ export const MainContent = ({ selectedItem = 'Dashboard' }) => {
   return (
     <div style={{ backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
       {renderContent()}
+      {selectedDate && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={() => setSelectedDate(null)}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <h2>Tasks for {selectedDate.toLocaleDateString()}</h2>
+            {dateTasks.length > 0 ? (
+              dateTasks.map((task, index) => (
+                <div key={index} style={{
+                  padding: '10px',
+                  marginBottom: '10px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  borderLeft: `4px solid ${task.priority === 'High' ? '#ff4444' : task.priority === 'Medium' ? '#ffbb33' : '#00C851'}`
+                }}>
+                  <div style={{ fontWeight: 'bold' }}>{task.title}</div>
+                  <div style={{ fontSize: '0.9em', color: '#666' }}>
+                    {task.category} • {task.priority} Priority
+                  </div>
+                  <div style={{ fontSize: '0.9em', color: '#666' }}>
+                    {new Date(task.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>No tasks scheduled for this date</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
