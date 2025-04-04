@@ -57,14 +57,29 @@ export const RightSidebar = () => {
   const [taskTitle, setTaskTitle] = useState('');
   const [category, setCategory] = useState('Work');
   const [priority, setPriority] = useState('Low');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
 
-  const categories = ['Work', 'Personal', 'Shopping'];
+  const categories = [
+    'Work',
+    'Health & Fitness',
+    'Finance',
+    'Education',
+    'Social & Leisure',
+    'Household'
+  ];
   const priorities = ['Low', 'Medium', 'High'];
 
   const handleCreateTask = () => {
-    // TODO: Implement task creation logic
-    console.log({ taskTitle, category, priority });
+    if (!taskTitle || !scheduledDate || !scheduledTime) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+    console.log({ taskTitle, category, priority, scheduledDateTime });
     setTaskTitle('');
+    setScheduledDate('');
+    setScheduledTime('');
   };
 
   const upcomingTasks = [
@@ -114,6 +129,26 @@ export const RightSidebar = () => {
               <option key={pri} value={pri}>{pri}</option>
             ))}
           </select>
+          <input
+            type="date"
+            value={scheduledDate}
+            onChange={(e) => setScheduledDate(e.target.value)}
+            style={{
+              padding: '8px',
+              borderRadius: '4px',
+              border: '1px solid #ccc'
+            }}
+          />
+          <input
+            type="time"
+            value={scheduledTime}
+            onChange={(e) => setScheduledTime(e.target.value)}
+            style={{
+              padding: '8px',
+              borderRadius: '4px',
+              border: '1px solid #ccc'
+            }}
+          />
           <button
             onClick={handleCreateTask}
             style={{
