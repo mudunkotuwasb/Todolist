@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './LeftSidebar.module.css';
 
 export const LeftSidebar = ({ onSelect }: { onSelect: (item: string) => void }) => {
@@ -59,6 +59,33 @@ export const RightSidebar = () => {
   const [priority, setPriority] = useState('Low');
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
+  interface UpcomingTask {
+  title: string;
+  category: string;
+  priority: string;
+  date: string;
+}
+
+const [upcomingTasks, setUpcomingTasks] = useState<UpcomingTask[]>([]);
+
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    const now = new Date();
+    
+    const upcoming = storedTasks
+      .filter((task: { scheduledDate: string | number | Date; }) => {
+        const taskDate = new Date(task.scheduledDate);
+        return taskDate > now;
+      })
+      .map((task: { title: any; category: any; priority: any; scheduledDate: string | number | Date; }) => ({
+        title: task.title,
+        category: task.category,
+        priority: task.priority,
+        date: new Date(task.scheduledDate).toLocaleString()
+      }));
+    
+    setUpcomingTasks(upcoming);
+  }, []);
 
   const categories = [
     'Work',
@@ -76,16 +103,38 @@ export const RightSidebar = () => {
       return;
     }
     const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
-    console.log({ taskTitle, category, priority, scheduledDateTime });
+    
+    const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    const newTask = {
+      id: Date.now(),
+      title: taskTitle,
+      category,
+      priority,
+      scheduledDate: scheduledDateTime,
+      completed: false
+    };
+    
+    localStorage.setItem('tasks', JSON.stringify([...storedTasks, newTask]));
+    window.dispatchEvent(new Event('storage'));
+    
     setTaskTitle('');
     setScheduledDate('');
     setScheduledTime('');
+    
+    // Update upcoming tasks
+    const now = new Date();
+    const upcoming = [...storedTasks, newTask]
+      .filter(task => new Date(task.scheduledDate) > now)
+      .map(task => ({
+        title: task.title,
+        category: task.category,
+        priority: task.priority,
+        date: new Date(task.scheduledDate).toLocaleString()
+      }));
+    
+    setUpcomingTasks(upcoming);
   };
 
-  const upcomingTasks = [
-    { title: 'Team Meeting', category: 'Work', priority: 'High', date: 'Today, 2:00 PM' },
-    { title: 'Grocery Shopping', category: 'Shopping', priority: 'Medium', date: 'Tomorrow, 10:00 AM' },
-  ];
 
   return (
     <div style={{ padding: '20px' }}>
