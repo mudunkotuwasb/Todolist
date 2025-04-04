@@ -53,12 +53,14 @@ export const TaskDashboard = () => {
     );
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleDelete = (taskId: number) => {
     const updatedTasks = tasks.filter(task => task.id !== taskId);
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleEdit = (task: Task) => {
@@ -71,6 +73,7 @@ export const TaskDashboard = () => {
     );
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    window.dispatchEvent(new Event('storage'));
     setEditingTask(null);
   };
 

@@ -51,7 +51,16 @@ export const Dashboard = () => {
       <div style={{ marginTop: '30px' }}>
         <h2>Pending Tasks</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px', marginTop: '15px' }}>
-          <TaskPreview title="" tasks={taskStats.pendingTasks} />
+          <TaskPreview title="" tasks={taskStats.pendingTasks} onTaskUpdate={() => {
+  const storedTasks = localStorage.getItem('tasks');
+  if (storedTasks) {
+    setTasks(JSON.parse(storedTasks).map((task: any) => ({
+      ...task,
+      scheduledDate: new Date(task.scheduledDate)
+    })));
+  }
+  window.dispatchEvent(new Event('storage'));
+}} />
         </div>
       </div>
     </div>
@@ -184,7 +193,64 @@ export const Calendar = () => {
   );
 };
 
-const TaskPreview = ({ title, tasks }: { title: string; tasks: Task[] }) => {
+const TaskPreview = ({ title, tasks, onTaskUpdate }: { title: string; tasks: Task[]; onTaskUpdate: () => void }) => {
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [tasksState, setTasksState] = useState<Task[]>(tasks);
+
+  useEffect(() => {
+    setTasksState(tasks);
+  }, [tasks]);
+
+  const handleToggleComplete = (taskId: number) => {
+    const updatedTasks = tasksState.map(task =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    );
+    setTasksState(updatedTasks);
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+      const allTasks = JSON.parse(storedTasks).map((task: any) => 
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      );
+      localStorage.setItem('tasks', JSON.stringify(allTasks));
+      window.dispatchEvent(new Event('storage'));
+      onTaskUpdate();
+    }
+  };
+
+  const handleDelete = (taskId: number) => {
+    const updatedTasks = tasksState.filter(task => task.id !== taskId);
+    setTasksState(updatedTasks);
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+      const allTasks = JSON.parse(storedTasks).filter((task: any) => task.id !== taskId);
+      localStorage.setItem('tasks', JSON.stringify(allTasks));
+      window.dispatchEvent(new Event('storage'));
+      onTaskUpdate();
+    }
+  };
+
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+  };
+
+  const handleSave = (taskId: number, newTitle: string) => {
+    const updatedTasks = tasksState.map(task =>
+      task.id === taskId ? { ...task, title: newTitle } : task
+    );
+    setTasksState(updatedTasks);
+    setEditingTask(null);
+    
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+      const allTasks = JSON.parse(storedTasks).map((task: any) => 
+        task.id === taskId ? { ...task, title: newTitle } : task
+      );
+      localStorage.setItem('tasks', JSON.stringify(allTasks));
+      window.dispatchEvent(new Event('storage'));
+      onTaskUpdate();
+    }
+  };
+
   return (
     <div style={{
       padding: '20px',
@@ -193,15 +259,76 @@ const TaskPreview = ({ title, tasks }: { title: string; tasks: Task[] }) => {
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
     }}>
       <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>{title}</h3>
-      {tasks.length > 0 ? (
-        tasks.map(task => (
+      {tasksState.length > 0 ? (
+        tasksState.map(task => (
           <div key={task.id} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
-            <div style={{ fontWeight: 'bold' }}>{task.title}</div>
+            {editingTask?.id === task.id ? (
+              <input
+                type="text"
+                value={editingTask.title}
+                onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                onBlur={() => handleSave(task.id, editingTask.title)}
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: '5px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  marginBottom: '5px'
+                }}
+              />
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+  <input
+    type="checkbox"
+    checked={task.completed}
+    onChange={() => handleToggleComplete(task.id)}
+    style={{ width: '20px', height: '20px' }}
+  />
+  <div style={{ 
+    fontWeight: 'bold',
+    textDecoration: task.completed ? 'line-through' : 'none',
+    color: task.completed ? '#666' : '#000'
+  }}>
+    {task.title}
+  </div>
+</div>
+            )}
             <div style={{ fontSize: '0.9em', color: '#666' }}>
               {task.category} • {task.priority} Priority
             </div>
             <div style={{ fontSize: '0.9em', color: '#666' }}>
               Due: {task.scheduledDate.toLocaleString()}
+            </div>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <button
+                onClick={() => handleEdit(task)}
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#2196F3',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.8em'
+                }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(task.id)}
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.8em'
+                }}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))
