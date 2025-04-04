@@ -71,17 +71,25 @@ const [upcomingTasks, setUpcomingTasks] = useState<UpcomingTask[]>([]);
   useEffect(() => {
     const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
     const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
     
     const upcoming = storedTasks
       .filter((task: { scheduledDate: string | number | Date; }) => {
         const taskDate = new Date(task.scheduledDate);
-        return taskDate > now;
+        return (
+          taskDate > now && 
+          taskDate.getDate() === tomorrow.getDate() &&
+          taskDate.getMonth() === tomorrow.getMonth() &&
+          taskDate.getFullYear() === tomorrow.getFullYear()
+        );
       })
       .map((task: { title: any; category: any; priority: any; scheduledDate: string | number | Date; }) => ({
         title: task.title,
         category: task.category,
         priority: task.priority,
-        date: new Date(task.scheduledDate).toLocaleString()
+        date: new Date(task.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }));
     
     setUpcomingTasks(upcoming);
